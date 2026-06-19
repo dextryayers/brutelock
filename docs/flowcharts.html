@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BrutePin Flow Charts</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flowchart/1.18.0/flowchart.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #0f0f1a;
+    color: #e0e0e0;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+    color: #27ae60;
+    font-size: 28px;
+    margin-bottom: 10px;
+  }
+  .subtitle {
+    text-align: center;
+    color: #888;
+    margin-bottom: 30px;
+    font-size: 14px;
+  }
+  .chart-container {
+    background: #1a1a2e;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 40px;
+    border: 1px solid #2a2a4a;
+    overflow: hidden;
+  }
+  .chart-container h2 {
+    color: #f1c40f;
+    font-size: 18px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #2a2a4a;
+  }
+  .chart-wrapper {
+    overflow: auto;
+    cursor: grab;
+    min-height: 500px;
+    background: #12122a;
+    border-radius: 8px;
+    position: relative;
+  }
+  .chart-wrapper:active { cursor: grabbing; }
+  .chart-wrapper svg { display: block; margin: 0 auto; }
+  .zoom-controls {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .zoom-controls button {
+    background: #2a2a4a;
+    color: #e0e0e0;
+    border: 1px solid #3a3a5a;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.2s;
+  }
+  .zoom-controls button:hover { background: #3a3a5a; }
+  .zoom-controls .zoom-level {
+    color: #888;
+    font-size: 13px;
+    margin-left: 8px;
+  }
+  .nav-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .nav-bar a {
+    background: #2a2a4a;
+    color: #e0e0e0;
+    text-decoration: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    border: 1px solid #3a3a5a;
+    transition: all 0.2s;
+  }
+  .nav-bar a:hover {
+    background: #27ae60;
+    color: #fff;
+    border-color: #27ae60;
+  }
+  .instructions {
+    text-align: center;
+    color: #666;
+    font-size: 13px;
+    margin-top: 30px;
+    padding: 20px;
+    border-top: 1px solid #2a2a4a;
+  }
+  .instructions kbd {
+    background: #2a2a4a;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    border: 1px solid #3a3a5a;
+  }
+</style>
+</head>
+<body>
+
+<h1>🔐 BrutePin v1.1 — Flow Charts</h1>
+<p class="subtitle">Interactive flowcharts — scroll to zoom, drag to pan, click links to jump</p>
+
+<div class="nav-bar">
+  <a href="#main">Main Execution</a>
+  <a href="#deepscan">Deep Scan</a>
+  <a href="#brute">PIN Brute Strategy</a>
+  <a href="#autopwn">Auto Pwn Chain</a>
+  <a href="#nonadb">Non-ADB Fallback</a>
+</div>
+
+<div id="main" class="chart-container">
+  <h2>📋 Main Execution Flow</h2>
+  <div class="chart-wrapper" id="chart-main"></div>
+</div>
+
+<div id="deepscan" class="chart-container">
+  <h2>🔍 Deep Scan Flow (23 stages)</h2>
+  <div class="chart-wrapper" id="chart-deepscan"></div>
+</div>
+
+<div id="brute" class="chart-container">
+  <h2>🎯 PIN Brute Force Strategy (4 Phases)</h2>
+  <div class="chart-wrapper" id="chart-brute"></div>
+</div>
+
+<div id="autopwn" class="chart-container">
+  <h2>⚡ Auto Pwn Chain (6 phases)</h2>
+  <div class="chart-wrapper" id="chart-autopwn"></div>
+</div>
+
+<div id="nonadb" class="chart-container">
+  <h2>🔌 Non-ADB Fallback Chain</h2>
+  <div class="chart-wrapper" id="chart-nonadb"></div>
+</div>
+
+<div class="instructions">
+  <p>🖱️ <kbd>Scroll</kbd> to zoom · <kbd>Drag</kbd> to pan · <kbd>Ctrl+0</kbd> to reset zoom</p>
+</div>
+
+<script>
+// =============================================================
+// MAIN EXECUTION FLOW
+// =============================================================
+const mainDef = `
+st=>start: START
+parse=>operation: Parse arguments
+hasargs=>condition: Has args?
+usbscan=>subroutine: USB raw scan
+found=>condition: Android found?
+showerr=>operation: Show error / --auto
+adbavail=>condition: ADB available?
+deepnoadb=>subroutine: deep_scan_no_adb
+usbinfo=>operation: Show USB/Fastboot info
+fbmode=>condition: fastboot mode?
+getvars=>operation: fb_getvar_all
+oemunlock=>operation: Try brand OEM unlock
+reboot=>operation: fastboot_reboot
+modeswitch=>operation: USB mode switch
+recheck=>condition: ADB now?
+options=>operation: Show options + exit
+safedetect=>operation: safe_detect_all
+printinfo=>operation: print_full_info
+locked=>condition: Device locked?
+unlocked=>inputoutput: Unlocked - exit
+menu=>operation: Choose PIN length
+smartmode=>condition: Smart mode?
+smartbrute=>operation: brute_smart 4-phase
+sequential=>operation: brute_pin sequential
+foundpin=>condition: PIN found?
+success=>inputoutput: Show PIN + stats
+fail=>inputoutput: Show failure + summary
+process=>operation: Process flags
+dispatch=>operation: Dispatch to handler
+
+st->parse
+parse->hasargs
+hasargs(no)->usbscan
+usbscan->found
+found(no)->showerr
+found(yes)->adbavail
+adbavail(no)->deepnoadb
+deepnoadb->usbinfo
+usbinfo->fbmode
+fbmode(yes)->getvars
+getvars->oemunlock
+oemunlock->reboot
+fbmode(no)->modeswitch
+reboot->recheck
+modeswitch->recheck
+recheck(no)->options
+recheck(yes)->safedetect
+adbavail(yes)->safedetect
+safedetect->printinfo
+printinfo->locked
+locked(no)->unlocked
+locked(yes)->menu
+menu->smartmode
+smartmode(yes)->smartbrute
+smartmode(no)->sequential
+smartbrute->foundpin
+sequential->foundpin
+foundpin(yes)->success
+foundpin(no)->fail
+hasargs(yes)->process
+process->dispatch
+`;
+
+// =============================================================
+// DEEP SCAN FLOW
+// =============================================================
+const deepDef = `
+st=>start: safe_detect_all
+wdt=>operation: 25s SIGALRM watchdog
+d01=>operation: detect_device - getprop x15
+d02=>operation: detect_network - WiFi/IP/MAC
+d03=>operation: detect_sysfs - /proc /sys
+d04=>operation: detect_database - locksettings
+d05=>operation: detect_services - running
+d06=>operation: detect_hardware - GPU/display
+d07=>operation: detect_accounts - Google
+d08=>operation: detect_telephony - IMEI/SIM
+d09=>operation: detect_extra - boot/config
+d10=>operation: detect_devices - input/block
+d11=>operation: detect_debug - verity/thermal
+d12=>operation: detect_bypass - bypass vectors
+d13=>operation: detect_chip - SoC details
+d14=>operation: detect_panel - display panel
+d15=>operation: detect_cam - camera system
+d16=>operation: detect_snd - audio system
+d17=>operation: detect_pwr - power mgmt
+d18=>operation: detect_radio - connectivity
+d19=>operation: detect_mem - storage + RAM
+d20=>operation: detect_sec - security
+d21=>operation: detect_sens - sensors
+d22=>operation: detect_filesys - filesystem
+d23=>operation: detect_allprop - bulk getprop
+done=>end: Return to caller
+
+st->wdt
+wdt->d01
+d01->d02
+d02->d03
+d03->d04
+d04->d05
+d05->d06
+d06->d07
+d07->d08
+d08->d09
+d09->d10
+d10->d11
+d11->d12
+d12->d13
+d13->d14
+d14->d15
+d15->d16
+d16->d17
+d17->d18
+d18->d19
+d19->d20
+d20->d21
+d21->d22
+d22->d23
+d23->done
+`;
+
+// =============================================================
+// PIN BRUTE STRATEGY
+// =============================================================
+const bruteDef = `
+st=>start: Start
+ph0=>operation: Phase 0: AI Markov (256 PINs)
+f0=>condition: PIN found?
+ph1=>operation: Phase 1: Common PINs (50)
+f1=>condition: PIN found?
+ph2=>operation: Phase 2: Device-specific
+f2=>condition: PIN found?
+ph3=>operation: Phase 3: Sequential
+f3=>condition: PIN found?
+win=>inputoutput: PIN FOUND
+lose=>inputoutput: PIN Not Found
+showwin=>inputoutput: Show PIN + Stats + Save
+showlose=>inputoutput: Show Failure + Summary
+
+st->ph0
+ph0->f0
+f0(yes)->win
+f0(no)->ph1
+ph1->f1
+f1(yes)->win
+f1(no)->ph2
+ph2->f2
+f2(yes)->win
+f2(no)->ph3
+ph3->f3
+f3(yes)->win
+f3(no)->lose
+win->showwin
+lose->showlose
+`;
+
+// =============================================================
+// AUTO PWN CHAIN
+// =============================================================
+const autoDef = `
+st=>start: Start
+ph1=>operation: Phase 1: Deep HW Scan
+scan=>operation: scanner_.scan_all + hw_
+soc=>operation: detect_soc + TrustZone
+ph2=>operation: Phase 2: Kernel Exploit
+exploit=>operation: kernel_.auto_exploit
+rooted=>condition: Root obtained?
+selinux=>operation: disable_selinux
+cont=>operation: Continue anyway
+ph3=>operation: Phase 3: HW Control
+disp=>operation: display_get_info
+touch=>operation: detect touch / GPIO
+ph4=>operation: Phase 4: Bypass
+wake=>operation: wake + swipe
+unlocked=>condition: Already unlocked?
+done=>end: Done - exit
+pinlen=>operation: select_pin_length
+grid=>operation: select_pin_grid
+method=>operation: select_input_method
+ph5=>operation: Phase 5: Brute Force
+gen=>operation: generate_pin_list
+loop=>operation: run_brute_loop
+found=>condition: PIN found?
+win=>inputoutput: PIN FOUND
+lose=>inputoutput: Exhausted
+ph6=>operation: Phase 6: Cleanup
+restore=>operation: kd_fix_security + restore
+summary=>operation: Print chain summary
+
+st->ph1
+ph1->scan
+scan->soc
+soc->ph2
+ph2->exploit
+exploit->rooted
+rooted(yes)->selinux
+rooted(no)->cont
+selinux->ph3
+cont->ph3
+ph3->disp
+disp->touch
+touch->ph4
+ph4->wake
+wake->unlocked
+unlocked(yes)->done
+unlocked(no)->pinlen
+pinlen->grid
+grid->method
+method->ph5
+ph5->gen
+gen->loop
+loop->found
+found(yes)->win
+found(no)->lose
+win->ph6
+lose->ph6
+ph6->restore
+restore->summary
+`;
+
+// =============================================================
+// NON-ADB FALLBACK
+// =============================================================
+const nonadbDef = `
+st=>start: No ADB
+deep=>operation: deep_scan_no_adb
+fbvars=>condition: fastboot getvar?
+fbs=>subroutine: deep_scan_from_fastboot
+fbfill=>operation: Fill: model/serial/soc
+us=>subroutine: usb_raw_scan_all
+found=>condition: Android USB found?
+us2=>subroutine: deep_scan_from_usb
+usfill=>operation: Fill: vendor/model/chipset
+empty=>end: Return empty
+print=>operation: print_device_info
+fbm=>condition: fastboot mode?
+oem=>operation: Attempt OEM unlock 11 brands
+reboot=>operation: fastboot_reboot
+recheck=>condition: ADB now?
+sw=>operation: USB mode switch 7 vendor IDs
+safe=>end: safe_detect_all + full info
+opts=>end: Show: recovery / AOA / fastboot
+
+st->deep
+deep->fbvars
+fbvars(success)->fbs
+fbs->fbfill
+fbvars(fail)->us
+us->found
+found(yes)->us2
+us2->usfill
+found(no)->empty
+fbfill->print
+usfill->print
+print->fbm
+fbm(yes)->oem
+oem->reboot
+reboot->recheck
+fbm(no)->sw
+sw->recheck
+recheck(yes)->safe
+recheck(no)->opts
+`;
+
+// =============================================================
+// RENDER ALL
+// =============================================================
+const charts = [
+  { id: 'chart-main', def: mainDef },
+  { id: 'chart-deepscan', def: deepDef },
+  { id: 'chart-brute', def: bruteDef },
+  { id: 'chart-autopwn', def: autoDef },
+  { id: 'chart-nonadb', def: nonadbDef }
+];
+
+function renderAll() {
+  charts.forEach(c => {
+    const el = document.getElementById(c.id);
+    if (!el) return;
+    try {
+      const diagram = flowchart.parse(c.def);
+      el.innerHTML = '';
+      diagram.drawSVG(c.id + '-svg', { 
+        'font-family': '"Segoe UI", sans-serif',
+        'font-size': '13px',
+        'line-width': 2,
+        'line-color': '#4a4a7a',
+        'element-color': '#3a3a6a',
+        'fill': '#1e1e3a',
+        'yes-text': 'Yes',
+        'no-text': 'No',
+        'arrow-end': 'block-wide-long',
+        'symbols': {
+          'start': {
+            'font-color': '#ffffff',
+            'fill': '#27ae60',
+            'element-color': '#1e8449',
+            'line-color': '#1e8449'
+          },
+          'end': {
+            'font-color': '#ffffff',
+            'fill': '#e74c3c',
+            'element-color': '#c0392b',
+            'line-color': '#c0392b'
+          },
+          'operation': {
+            'font-color': '#ffffff',
+            'fill': '#2980b9',
+            'element-color': '#2471a3',
+            'line-color': '#2471a3'
+          },
+          'condition': {
+            'font-color': '#000000',
+            'fill': '#f1c40f',
+            'element-color': '#d4ac0d',
+            'line-color': '#d4ac0d'
+          },
+          'inputoutput': {
+            'font-color': '#ffffff',
+            'fill': '#8e44ad',
+            'element-color': '#7d3c98',
+            'line-color': '#7d3c98'
+          },
+          'subroutine': {
+            'font-color': '#ffffff',
+            'fill': '#16a085',
+            'element-color': '#138d75',
+            'line-color': '#138d75'
+          }
+        }
+      });
+    } catch(e) {
+      el.innerHTML = '<div style="color:#e74c3c;padding:20px">Error rendering: ' + e.message + '</div>';
+    }
+  });
+}
+
+renderAll();
+
+// =============================================================
+// ZOOM CONTROLS per chart
+// =============================================================
+charts.forEach(c => {
+  const wrapper = document.getElementById(c.id);
+  if (!wrapper) return;
+  
+  let scale = 1;
+  let panX = 0, panY = 0;
+  let isDragging = false, startX, startY;
+  
+  function applyTransform() {
+    const svg = wrapper.querySelector('svg');
+    if (svg) {
+      svg.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+      svg.style.transformOrigin = 'top center';
+    }
+  }
+  
+  wrapper.addEventListener('wheel', function(e) {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -0.1 : 0.1;
+    scale = Math.max(0.2, Math.min(5, scale + delta));
+    applyTransform();
+  }, { passive: false });
+  
+  wrapper.addEventListener('mousedown', function(e) {
+    if (e.target.closest('svg')) {
+      isDragging = true;
+      startX = e.clientX - panX;
+      startY = e.clientY - panY;
+      wrapper.style.cursor = 'grabbing';
+    }
+  });
+  
+  window.addEventListener('mousemove', function(e) {
+    if (isDragging) {
+      panX = e.clientX - startX;
+      panY = e.clientY - startY;
+      applyTransform();
+    }
+  });
+  
+  window.addEventListener('mouseup', function() {
+    if (isDragging) {
+      isDragging = false;
+      wrapper.style.cursor = 'grab';
+    }
+  });
+
+  // Double-click to reset
+  wrapper.addEventListener('dblclick', function() {
+    scale = 1;
+    panX = 0;
+    panY = 0;
+    applyTransform();
+  });
+});
+</script>
+</body>
+</html>
