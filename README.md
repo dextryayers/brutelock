@@ -1,15 +1,6 @@
 # BrutePin v1.1 — Pure Native Android PIN Brute Force
 
-```text
-  ██████  ██████  ██    ██ ████████ ███████  ██████  ██ ███    ██
-  ██   ██ ██   ██ ██    ██    ██    ██      ██       ██ ████   ██
-  ██████  ██████  ██    ██    ██    █████   ██   ███ ██ ██ ██  ██
-  ██   ██ ██   ██ ██    ██    ██    ██      ██    ██ ██ ██  ██ ██
-  ██████  ██   ██  ██████     ██    ███████  ██████  ██ ██   ████
-  Pure Native — no ADB binary, direct USB communication
-  =================================================================
-  Android PIN Brute Force Tool | Author: Aniipid | v1.1
-```
+<img src=/img/banner.png center></img>
 
 **BrutePin** is a complete, standalone Android PIN brute-force toolkit. It implements the **ADB protocol natively in C** — no `adb` binary, no `libusb`, no TCP/IP, no network. Communication happens **directly via USB cable** using Linux `usbdevfs` ioctls (`/dev/bus/usb/`). Written in **C (core) + C++ (AI/strategy) + Python (orchestrator)** with 165+ source files, 17 exploit engines, and real-time screen monitoring.
 
